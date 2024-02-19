@@ -6,8 +6,10 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
+	"github.com/caleb-mwasikira/webservers/projectpath"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -19,8 +21,8 @@ type Server struct {
 
 func getServerConfiguration() *Server {
 	host := os.Getenv("HOST")
+	static_dir := filepath.Join(projectpath.Root, "public")
 	port, err := strconv.Atoi(os.Getenv("PORT"))
-
 	if err != nil {
 		port = 8080
 	}
@@ -32,7 +34,7 @@ func getServerConfiguration() *Server {
 	return &Server{
 		Host:      host,
 		Port:      uint16(port),
-		StaticDir: http.Dir("../../public"),
+		StaticDir: http.Dir(static_dir),
 	}
 }
 
@@ -56,11 +58,9 @@ func main() {
 }
 
 func homePage(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	log.Printf("%v %v", req.Method, req.URL)
 	res.Write([]byte("Welcome to the Home page"))
 }
 
 func aboutPage(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	log.Printf("%v %v", req.Method, req.URL)
 	res.Write([]byte("This is the About page"))
 }
