@@ -1,13 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/caleb-mwasikira/webservers/projectpath"
 	"github.com/julienschmidt/httprouter"
@@ -19,21 +19,27 @@ type Server struct {
 	StaticDir http.FileSystem
 }
 
-func getServerConfiguration() *Server {
-	host := os.Getenv("HOST")
-	static_dir := filepath.Join(projectpath.Root, "public")
-	port, err := strconv.Atoi(os.Getenv("PORT"))
-	if err != nil {
-		port = 8080
+func NewServer(host string, port uint16, static_dir string) *Server {
+	// if invalid host IP provided, set host IP address to anycast
+	if addr := net.ParseIP(host); addr == nil {
+		host = "0.0.0.0"
 	}
 
-	if ok := net.ParseIP(host); ok == nil {
-		host = "127.0.0.1"
+	// verify static directory
+	stat, err := os.Stat(static_dir)
+	if err != nil {
+		log.Printf("static directory path %v does not exist", static_dir)
+		static_dir = filepath.Join(projectpath.Root, "public")
+	} else {
+		if !stat.IsDir() {
+			log.Printf("static directory path %v is not a valid directory", static_dir)
+			static_dir = filepath.Join(projectpath.Root, "public")
+		}
 	}
 
 	return &Server{
-		Host:      host,
-		Port:      uint16(port),
+		Host:      "127.0.0.1",
+		Port:      8080,
 		StaticDir: http.Dir(static_dir),
 	}
 }
@@ -43,9 +49,21 @@ func (s *Server) Addr() string {
 }
 
 func main() {
-	server := getServerConfiguration()
-	router := httprouter.New()
+	// parse command-line flags
+	var (
+		host       string
+		port       int = 8080
+		static_dir string
+	)
 
+	flag.StringVar(&host, "host", host, "HTTP network address")
+	flag.IntVar(&port, "port", port, "Port number to run the web server")
+	flag.StringVar(&static_dir, "static-dir", static_dir, "Path to static assets")
+	flag.Parse()
+
+	server := NewServer(host, uint16(port), static_dir)
+
+	router := httprouter.New()
 	router.GET("/", homePage)
 	router.GET("/about", aboutPage)
 	router.ServeFiles("/static/*filepath", server.StaticDir)
