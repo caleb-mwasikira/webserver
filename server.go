@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/caleb-mwasikira/webservers/projectpath"
+	"github.com/caleb-mwasikira/dfs/projectpath"
 )
 
 const (
