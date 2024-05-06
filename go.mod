@@ -1,4 +1,4 @@
-module github.com/caleb-mwasikira/dfs
+module github.com/caleb-mwasikira/webserver
 
 go 1.21.6
 

@@ -3,7 +3,7 @@ package controllers
 import (
 	"database/sql"
 
-	models "github.com/caleb-mwasikira/dfs/models"
+	models "github.com/caleb-mwasikira/webserver/models"
 )
 
 type Application struct {

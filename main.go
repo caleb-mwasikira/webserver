@@ -5,10 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
-	c "github.com/caleb-mwasikira/dfs/controllers"
+	c "github.com/caleb-mwasikira/webserver/controllers"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
@@ -47,6 +48,23 @@ func connectToDatabase() (*sql.DB, error) {
 	return db, nil
 }
 
+func networkAddr() (string, error) {
+	var ip_addr string
+
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range addrs {
+		ipNet, ok := addr.(*net.IPNet)
+		if ok && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
+			ip_addr = ipNet.IP.String()
+			break
+		}
+	}
+	return ip_addr, nil
+}
+
 func main() {
 	// parse command-line flags
 	var (
@@ -59,6 +77,13 @@ func main() {
 	flag.IntVar(&port, "port", port, "Port number to run the web server")
 	flag.StringVar(&static_dir, "static-dir", static_dir, "Path to static assets")
 	flag.Parse()
+
+	// set server running on the network address
+	// use loopback address as a fallback option
+	host, err := networkAddr()
+	if err != nil {
+		host = "127.0.0.1"
+	}
 
 	server, err := NewServer(host, uint16(port), static_dir, true)
 	if err != nil {

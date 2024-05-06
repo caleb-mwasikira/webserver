@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/caleb-mwasikira/dfs/projectpath"
+	"github.com/caleb-mwasikira/webserver/projectpath"
 )
 
 const (
@@ -72,8 +72,8 @@ func NewServer(host string, port uint16, static_dir string, enable_log bool) (*S
 	}
 
 	return &Server{
-		Host:      "127.0.0.1",
-		Port:      8080,
+		Host:      host,
+		Port:      port,
 		StaticDir: http.Dir(static_dir),
 		LogWriter: &log_wrt,
 	}, nil

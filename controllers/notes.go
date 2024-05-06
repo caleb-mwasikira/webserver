@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	models "github.com/caleb-mwasikira/dfs/models"
+	models "github.com/caleb-mwasikira/webserver/models"
 	"github.com/go-playground/validator"
 	"github.com/julienschmidt/httprouter"
 )
